@@ -1,10 +1,12 @@
 enum Cell { Empty, X, O }
 
-const cellText = {
+const _cellText = {
   Cell.Empty: ' ',
   Cell.X: 'X',
   Cell.O: 'O',
 };
+
+get cellText => _cellText;
 
 const cellChecks = [
   [0, 0, 0, 1],
@@ -27,26 +29,27 @@ class TicTacToeState {
   get moreMoves => _moreMoves;
 
   TicTacToeState() {
-    reset();
-  }
-
-  void reset() {
     _cells.fillRange(0, _cells.length, Cell.Empty);
     _current = Cell.X;
     _winner = _checkForWinner();
     _moreMoves = _checkForMoreMoves();
   }
 
-  String textAt(int x, int y) {
-    var cell = _cells[y * 3 + x];
-    return cellText[cell];
+  Cell cellAt(int x, int y) {
+    var index = y * 3 + x;
+    assert(index >= 0 && index < _cells.length);
+    return _cells[index];
   }
 
+  String textAt(int x, int y) => _cellText[cellAt(x, y)];
+
   bool move(int x, int y) {
-    if (_cells[y * 3 + x] != Cell.Empty) {
+    final index = y * 3 + x;
+    assert(index >= 0 && index < _cells.length);
+    if (_cells[index] != Cell.Empty) {
       return false;
     }
-    _cells[y * 3 + x] = _current;
+    _cells[index] = _current;
     _current = _current == Cell.O ? Cell.X : Cell.O;
     _winner = _checkForWinner();
     _moreMoves = _checkForMoreMoves();
@@ -65,9 +68,7 @@ class TicTacToeState {
     return prevCell;
   }
 
-  bool _checkForMoreMoves() {
-    return _cells.contains(Cell.Empty);
-  }
+  bool _checkForMoreMoves() => _cells.contains(Cell.Empty);
 
   Cell _checkForWinner() {
     for (var c in cellChecks) {

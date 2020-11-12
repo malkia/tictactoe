@@ -4,5 +4,7 @@ import 'package:get/get.dart';
 import 'main_page.dart';
 
 void main() {
-  runApp(GetMaterialApp(home: MainPage()));
+  runApp(myApp());
 }
+
+GetMaterialApp myApp() => GetMaterialApp(home: MainPage());

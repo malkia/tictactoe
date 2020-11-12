@@ -1,6 +1,6 @@
 {
-    "name": "p9",
-    "short_name": "p9",
+    "name": "tictactoe",
+    "short_name": "tictactoe",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
