@@ -15,7 +15,7 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(myApp());
 
-    expect(find.text('New Game'), findsOneWidget);
+    expect(find.text('Tic Tac Toe'), findsOneWidget);
     expect(find.text('Exit'), findsOneWidget);
 
     var mainMenuButtons = find.byType(ElevatedButton);

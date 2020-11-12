@@ -18,10 +18,18 @@ class MainPage extends StatelessWidget {
             Spacer(flex: 5),
             ElevatedButton(
               child: Text(
-                'New Game',
+                'Tic Tac Toe',
                 textScaleFactor: 4.0,
               ),
               onPressed: () => Get.to(TicTacToePageGetX()),
+            ),
+            Spacer(flex: 2),
+            ElevatedButton(
+              child: Text(
+                'Super Tic Tac Toe',
+                textScaleFactor: 4.0,
+              ),
+              onPressed: () => Get.to(SuperTicTacToePageGetX()),
             ),
             Spacer(flex: 6),
             ElevatedButton(
