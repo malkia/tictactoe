@@ -13,13 +13,14 @@ class TicTacToePageGetX extends StatelessWidget {
       ),
       body: Center(
         child: Obx(() => _state.value.renderBoard(
-              onPressed: (int col, int row) {
+              onPressed: <bool>(int col, int row) {
                 if (_state.value.move(col, row)) {
                   _state.refresh();
-                  return;
+                  return true;
                 }
                 Get.snackbar("Invalid move", "Cell taken",
                     snackPosition: SnackPosition.BOTTOM);
+                return false;
               },
             )),
       ));
@@ -35,13 +36,14 @@ class SuperTicTacToePageGetX extends StatelessWidget {
       ),
       body: Center(
         child: Obx(() => _state.value.renderBoard(
-              onPressed: (TicTacToeGame game, int col, int row) {
+              onPressed: <bool>(TicTacToeGame game, int col, int row) {
                 if (game.move(col, row)) {
                   _state.refresh();
-                  return;
+                  return true;
                 }
                 Get.snackbar("Invalid move", "Cell taken",
                     snackPosition: SnackPosition.BOTTOM);
+                return false;
               },
             )),
       ));
