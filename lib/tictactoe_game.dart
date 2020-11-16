@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
-enum _CellType { Empty, X, O }
+// Great article, and the first one that I remember learning about it
+// https://mathwithbaddrawings.com/2013/06/16/ultimate-tic-tac-toe/
+
+// Some game options from the article above:
+//  Tie (draw) on the larger board can be considered as both X and O
+
+enum _CellType { Empty, X, O, Unspecified }
 
 const _cellToString = {
   _CellType.Empty: ' ',
@@ -29,6 +35,7 @@ class TicTacToeGame {
 
   get lastX => _lastX;
   get lastY => _lastY;
+  get current => _current;
 
   TicTacToeGame() {
     _cells.fillRange(0, _cells.length, _CellType.Empty);
@@ -45,11 +52,14 @@ class TicTacToeGame {
     return _cells[index];
   }
 
-  bool move(int x, int y) {
+  bool move(int x, int y, {_CellType current = _CellType.Unspecified}) {
     final index = y * 3 + x;
     assert(index >= 0 && index < _cells.length);
-    if (_cells[index] != _CellType.Empty) {
+    if (_winner != _CellType.Empty || _cells[index] != _CellType.Empty) {
       return false;
+    }
+    if (current != _CellType.Unspecified) {
+      _current = current;
     }
     _cells[index] = _current;
     _current = _current == _CellType.O ? _CellType.X : _CellType.O;
@@ -141,23 +151,26 @@ class SuperTicTacToeGame {
   final _games = List<TicTacToeGame>(9);
   var _lastX = -1;
   var _lastY = -1;
+  var _current = _CellType.X;
+
+  get current => _current;
 
   SuperTicTacToeGame() {
     for (var i = 0; i < _games.length; i++) _games[i] = TicTacToeGame();
     _lastX = -1;
     _lastY = -1;
+    _current = _CellType.X;
   }
 
   Widget _renderGame(int col, int row,
       {Function<bool>(TicTacToeGame, int, int) onPressed}) {
-    var disabled = false;
-    if (_lastX != -1 && _lastY != -1) {
-      var _lastGame = _games[_lastY * 3 + _lastX];
-      if (_lastGame.lastX != -1 && _lastGame.lastY != -1) {
-        disabled = true;
-        if (_lastGame.lastX == col && _lastGame.lastY == row) {
-          disabled = false;
-          // TODO: Avoid all being disabled if there are still more to be played
+    var enabled = true;
+    if (_lastX != -1) {
+      var lastGame = _games[_lastY * 3 + _lastX];
+      if (lastGame._moreMoves && lastGame._winner == _CellType.Empty) {
+        var nextGame = _games[lastGame.lastY * 3 + lastGame.lastX];
+        if (nextGame._moreMoves && nextGame._winner == _CellType.Empty) {
+          enabled = (lastGame.lastX == col && lastGame.lastY == row);
         }
       }
     }
@@ -165,15 +178,15 @@ class SuperTicTacToeGame {
       padding: EdgeInsets.all(16.0),
       child: _games[row * 3 + col].renderBoard(
           onPressed: <bool>(gameRow, gameCol) {
-            print("renderGame: $_lastX $_lastY");
             if (onPressed(_games[row * 3 + col], gameRow, gameCol)) {
               _lastX = col;
               _lastY = row;
+              _current = _games[row * 3 + col].current;
               return true;
             }
             return false;
           },
-          disabled: disabled),
+          disabled: !enabled),
     );
   }
 

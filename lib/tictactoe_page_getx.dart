@@ -37,7 +37,7 @@ class SuperTicTacToePageGetX extends StatelessWidget {
       body: Center(
         child: Obx(() => _state.value.renderBoard(
               onPressed: <bool>(TicTacToeGame game, int col, int row) {
-                if (game.move(col, row)) {
+                if (game.move(col, row, current: _state.value.current)) {
                   _state.refresh();
                   return true;
                 }
