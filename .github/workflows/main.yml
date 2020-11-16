@@ -1,4 +1,4 @@
-name: Update https://malkia.github.io/tictactoe
+name: Update site
 
 on:
   push:
