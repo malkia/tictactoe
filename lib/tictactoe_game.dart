@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 // Some game options from the article above:
 //  Tie (draw) on the larger board can be considered as both X and O
 
-enum _CellType { Empty, X, O, Unspecified }
+enum _CellType { Empty, X, O }
 
 const _cellToString = {
   _CellType.Empty: ' ',
@@ -52,13 +52,12 @@ class TicTacToeGame {
     return _cells[index];
   }
 
-  bool move(int x, int y, {_CellType current = _CellType.Unspecified}) {
+  void move(int x, int y, {_CellType current = _CellType.Empty}) {
+    assert( _winner == _CellType.Empty );
     final index = y * 3 + x;
     assert(index >= 0 && index < _cells.length);
-    if (_winner != _CellType.Empty || _cells[index] != _CellType.Empty) {
-      return false;
-    }
-    if (current != _CellType.Unspecified) {
+    assert( _cells[index] == _CellType.Empty );
+    if (current != _CellType.Empty) {
       _current = current;
     }
     _cells[index] = _current;
@@ -67,10 +66,11 @@ class TicTacToeGame {
     _moreMoves = _checkForMoreMoves();
     _lastX = x;
     _lastY = y;
-    return true;
   }
 
-  _CellType _checkThreeNeighbours(int x, int y, int dx, int dy) {
+  bool _checkForMoreMoves() => _cells.contains(_CellType.Empty);
+
+  _CellType _checkForWinSequence(int x, int y, int dx, int dy) {
     var prevCell = _CellType.Empty;
     for (int i = 0; i < 3; i++) {
       final index = (y + dy * i) * 3 + x + dx * i;
@@ -84,11 +84,9 @@ class TicTacToeGame {
     return prevCell;
   }
 
-  bool _checkForMoreMoves() => _cells.contains(_CellType.Empty);
-
   _CellType _checkForWinner() {
     for (var c in _checksForWin) {
-      final cell = _checkThreeNeighbours(c[0], c[1], c[2], c[3]);
+      final cell = _checkForWinSequence(c[0], c[1], c[2], c[3]);
       if (cell != _CellType.Empty) {
         return cell;
       }
@@ -97,11 +95,11 @@ class TicTacToeGame {
   }
 
   Widget _renderCell(int col, int row,
-      {Function<bool>(int, int) onPressed, bool disabled = false}) {
+      {Function(int, int) onPressed, bool disabled = false}) {
     var cell = _cellAt(col, row);
     if (cell != _CellType.Empty) disabled = true;
     return Padding(
-      padding: EdgeInsets.all(2.0),
+      padding: EdgeInsets.all(1.0),
       child: ElevatedButton(
         child: Text(_cellToString[cell]),
         onPressed: disabled ? null : () => onPressed(col, row),
@@ -110,7 +108,7 @@ class TicTacToeGame {
   }
 
   Widget _renderRow(int row,
-          {Function<bool>(int, int) onPressed, bool disabled = false}) =>
+          {Function(int, int) onPressed, bool disabled = false}) =>
       Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -121,7 +119,7 @@ class TicTacToeGame {
       );
 
   Widget renderBoard(
-      {Function<bool>(int, int) onPressed, bool disabled = false}) {
+      {Function(int, int) onPressed, bool disabled = false}) {
     var stackIndex = 0;
 
     if (_winner != _CellType.Empty) {
@@ -134,14 +132,16 @@ class TicTacToeGame {
       alignment: AlignmentDirectional.center,
       index: stackIndex,
       children: [
-        Column(mainAxisSize: MainAxisSize.min, children: [
-          Text("$_lastX $_lastY"),
-          _renderRow(0, onPressed: onPressed, disabled: disabled),
-          _renderRow(1, onPressed: onPressed, disabled: disabled),
-          _renderRow(2, onPressed: onPressed, disabled: disabled),
-        ]),
-        Text("Winner is ${_cellToString[_winner]}", textScaleFactor: 2.0),
-        Text("It's a draw!", textScaleFactor: 2.0),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _renderRow(0, onPressed: onPressed, disabled: disabled),
+            _renderRow(1, onPressed: onPressed, disabled: disabled),
+            _renderRow(2, onPressed: onPressed, disabled: disabled),
+          ],
+        ),
+        Text(_cellToString[_winner], textScaleFactor: 7.0),
+        Text("X/O", textScaleFactor: 7.0),
       ],
     );
   }
@@ -163,7 +163,7 @@ class SuperTicTacToeGame {
   }
 
   Widget _renderGame(int col, int row,
-      {Function<bool>(TicTacToeGame, int, int) onPressed}) {
+      {Function(TicTacToeGame, int, int) onPressed}) {
     var enabled = true;
     if (_lastX != -1) {
       var lastGame = _games[_lastY * 3 + _lastX];
@@ -174,24 +174,22 @@ class SuperTicTacToeGame {
         }
       }
     }
+    var game = _games[row * 3 + col];
     return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: _games[row * 3 + col].renderBoard(
-          onPressed: <bool>(gameRow, gameCol) {
-            if (onPressed(_games[row * 3 + col], gameRow, gameCol)) {
-              _lastX = col;
-              _lastY = row;
-              _current = _games[row * 3 + col].current;
-              return true;
-            }
-            return false;
+      padding: EdgeInsets.all(8.0),
+      child: game.renderBoard(
+          onPressed: (gameRow, gameCol) {
+            onPressed(game, gameRow, gameCol);
+            _lastX = col;
+            _lastY = row;
+            _current = game.current;
           },
           disabled: !enabled),
     );
   }
 
   Widget _renderRowOfGames(int row,
-          {Function<bool>(TicTacToeGame, int, int) onPressed}) =>
+          {Function(TicTacToeGame, int, int) onPressed}) =>
       Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -201,21 +199,10 @@ class SuperTicTacToeGame {
         ],
       );
 
-  Widget renderBoard({Function<bool>(TicTacToeGame, int, int) onPressed}) {
-    // if (_winner != _CellType.Empty) {
-    //   return Text("The winner is ${_cellToString[_winner]}",
-    //       textScaleFactor: 4.0);
-    // }
-
-    // // No one has won, but no more moves can be made, so it's a draw.
-    // if (!_moreMoves) {
-    //   return Text("It's a draw!", textScaleFactor: 4.0);
-    // }
-
+  Widget renderBoard({Function(TicTacToeGame, int, int) onPressed}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text("$_lastX $_lastY"),
         _renderRowOfGames(0, onPressed: onPressed),
         _renderRowOfGames(1, onPressed: onPressed),
         _renderRowOfGames(2, onPressed: onPressed),
