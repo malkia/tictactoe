@@ -26,56 +26,56 @@ const _checksForWin = [
 ];
 
 class TicTacToeGame {
-  final _cells = List<_CellType>(9);
-  var _current = _CellType.X;
+  final _boardCells = List<_CellType>(9);
+  var _currentPlayer = _CellType.X;
   var _winner = _CellType.Empty;
   var _moreMoves = true;
-  var _lastX = -1;
-  var _lastY = -1;
+  var _lastCellX = -1;
+  var _lastCellY = -1;
 
-  get lastX => _lastX;
-  get lastY => _lastY;
-  get current => _current;
+  get lastCellX => _lastCellX;
+  get lastCellY => _lastCellY;
+  get currentPlayer => _currentPlayer;
 
   TicTacToeGame() {
-    _cells.fillRange(0, _cells.length, _CellType.Empty);
-    _current = _CellType.X;
+    _boardCells.fillRange(0, _boardCells.length, _CellType.Empty);
+    _currentPlayer = _CellType.X;
     _winner = _checkForWinner();
     _moreMoves = _checkForMoreMoves();
-    _lastX = -1;
-    _lastY = -1;
+    _lastCellX = -1;
+    _lastCellY = -1;
   }
 
   _CellType _cellAt(int x, int y) {
     var index = y * 3 + x;
-    assert(index >= 0 && index < _cells.length);
-    return _cells[index];
+    assert(index >= 0 && index < _boardCells.length);
+    return _boardCells[index];
   }
 
   void move(int x, int y, {_CellType current = _CellType.Empty}) {
     assert(_winner == _CellType.Empty);
     final index = y * 3 + x;
-    assert(index >= 0 && index < _cells.length);
-    assert(_cells[index] == _CellType.Empty);
+    assert(index >= 0 && index < _boardCells.length);
+    assert(_boardCells[index] == _CellType.Empty);
     if (current != _CellType.Empty) {
-      _current = current;
+      _currentPlayer = current;
     }
-    _cells[index] = _current;
-    _current = _current == _CellType.O ? _CellType.X : _CellType.O;
+    _boardCells[index] = _currentPlayer;
+    _currentPlayer = _currentPlayer == _CellType.O ? _CellType.X : _CellType.O;
     _winner = _checkForWinner();
     _moreMoves = _checkForMoreMoves();
-    _lastX = x;
-    _lastY = y;
+    _lastCellX = x;
+    _lastCellY = y;
   }
 
-  bool _checkForMoreMoves() => _cells.contains(_CellType.Empty);
+  bool _checkForMoreMoves() => _boardCells.contains(_CellType.Empty);
 
   _CellType _checkForWinSequence(int x, int y, int dx, int dy) {
     var prevCell = _CellType.Empty;
     for (int i = 0; i < 3; i++) {
       final index = (y + dy * i) * 3 + x + dx * i;
       assert(index >= 0 && index < 9);
-      final cell = _cells[index];
+      final cell = _boardCells[index];
       if (i > 0 && (cell == _CellType.Empty || prevCell != cell)) {
         return _CellType.Empty;
       }
@@ -124,14 +124,9 @@ class TicTacToeGame {
       );
 
   Widget renderBoard({Function(int, int) onPressed, bool disabled = false}) {
-    var msg = '';
-
-    if (_winner == _CellType.X) {
-      msg = 'X';
-    } else if (_winner == _CellType.O) {
-      msg = 'O';
-    } else if (!_moreMoves) {
-      msg = '#';
+    var msg = _cellToString[_winner];
+    if (_winner == _CellType.Empty) {
+      msg = _moreMoves ? '' : '#';
     }
 
     return Padding(
@@ -154,72 +149,70 @@ class TicTacToeGame {
 }
 
 class SuperTicTacToeGame {
-  final _games = List<TicTacToeGame>(9);
-  var _lastX = -1;
-  var _lastY = -1;
+  final _boards = List<TicTacToeGame>(9);
+  var _lastBoardX = -1;
+  var _lastBoardY = -1;
   var _current = _CellType.X;
 
   get current => _current;
 
   SuperTicTacToeGame() {
-    for (var i = 0; i < _games.length; i++) _games[i] = TicTacToeGame();
-    _lastX = -1;
-    _lastY = -1;
+    for (var i = 0; i < _boards.length; i++) _boards[i] = TicTacToeGame();
+    _lastBoardX = -1;
+    _lastBoardY = -1;
     _current = _CellType.X;
   }
 
-  Widget _renderGame(int col, int row,
+  Widget _renderBoard(int boardX, int boardY,
       {Function(TicTacToeGame, int, int) onPressed}) {
-    var enabled = true;
-    if (_lastX != -1) {
-      var lastGame = _games[_lastY * 3 + _lastX];
-      if (lastGame._moreMoves && lastGame._winner == _CellType.Empty) {
-        var nextGame = _games[lastGame.lastY * 3 + lastGame.lastX];
-        if (nextGame._moreMoves && nextGame._winner == _CellType.Empty) {
-          enabled = (lastGame.lastX == col && lastGame.lastY == row);
-        }
+    // Check if the current (this) board can be played, e.g.
+    // if more moves are possible, and no winner.
+    final thisBoard = _boards[boardY * 3 + boardX];
+    var enabled = thisBoard._moreMoves && thisBoard._winner == _CellType.Empty;
+    if (enabled && _lastBoardX != -1) {
+      assert(_lastBoardX >= 0 && _lastBoardX < 3);
+      assert(_lastBoardY >= 0 && _lastBoardY < 3);
+      final lastBoard = _boards[_lastBoardY * 3 + _lastBoardX];
+      final nextBoardX = lastBoard.lastCellX;
+      final nextBoardY = lastBoard.lastCellY;
+      assert(nextBoardX >= 0 && nextBoardX < 3);
+      assert(nextBoardY >= 0 && nextBoardY < 3);
+      // Find the next board that should be played.
+      final nextBoard = _boards[nextBoardY * 3 + nextBoardX];
+      // Check if the next board is playable If the next board is playable (e.g. more moves possible, no winner)
+      // Then enable only it, and disable the rest, otherwise enable them.
+      if (nextBoard._moreMoves && nextBoard._winner == _CellType.Empty) {
+        enabled = (nextBoardX == boardX && nextBoardY == boardY);
       }
     }
-    var game = _games[row * 3 + col];
-    if (!game._moreMoves || game._winner != _CellType.Empty) {
-      enabled = false;
-    }
-    return game.renderBoard(
+    return thisBoard.renderBoard(
         onPressed: (gameRow, gameCol) {
-          onPressed(game, gameRow, gameCol);
-          _lastX = col;
-          _lastY = row;
-          _current = game.current;
+          onPressed(thisBoard, gameRow, gameCol);
+          _lastBoardX = boardX;
+          _lastBoardY = boardY;
+          _current = thisBoard.currentPlayer;
         },
         disabled: !enabled);
   }
 
-  Widget _renderRowOfGames(int row,
+  Widget _renderBoardsRow(int row,
           {Function(TicTacToeGame, int, int) onPressed}) =>
       Row(
         mainAxisSize: MainAxisSize.min,
-        // crossAxisAlignment: CrossAxisAlignment.center,
-        // mainAxisAlignment: MainAxisAlignment.center,
         children: [
-//          Spacer(),
-          _renderGame(0, row, onPressed: onPressed),
-          _renderGame(1, row, onPressed: onPressed),
-          _renderGame(2, row, onPressed: onPressed),
-//          Spacer(),
+          _renderBoard(0, row, onPressed: onPressed),
+          _renderBoard(1, row, onPressed: onPressed),
+          _renderBoard(2, row, onPressed: onPressed),
         ],
       );
 
   Widget renderBoard({Function(TicTacToeGame, int, int) onPressed}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      // crossAxisAlignment: CrossAxisAlignment.center,
-      // mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        //      Spacer(),
-        _renderRowOfGames(0, onPressed: onPressed),
-        _renderRowOfGames(1, onPressed: onPressed),
-        _renderRowOfGames(2, onPressed: onPressed),
-//        Spacer(),
+        _renderBoardsRow(0, onPressed: onPressed),
+        _renderBoardsRow(1, onPressed: onPressed),
+        _renderBoardsRow(2, onPressed: onPressed),
       ],
     );
   }
