@@ -53,10 +53,10 @@ class TicTacToeGame {
   }
 
   void move(int x, int y, {_CellType current = _CellType.Empty}) {
-    assert( _winner == _CellType.Empty );
+    assert(_winner == _CellType.Empty);
     final index = y * 3 + x;
     assert(index >= 0 && index < _cells.length);
-    assert( _cells[index] == _CellType.Empty );
+    assert(_cells[index] == _CellType.Empty);
     if (current != _CellType.Empty) {
       _current = current;
     }
@@ -101,6 +101,9 @@ class TicTacToeGame {
     return Padding(
       padding: EdgeInsets.all(1.0),
       child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          minimumSize: Size(40, 40),
+        ),
         child: Text(_cellToString[cell]),
         onPressed: disabled ? null : () => onPressed(col, row),
       ),
@@ -111,6 +114,8 @@ class TicTacToeGame {
           {Function(int, int) onPressed, bool disabled = false}) =>
       Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _renderCell(0, row, onPressed: onPressed, disabled: disabled),
           _renderCell(1, row, onPressed: onPressed, disabled: disabled),
@@ -118,32 +123,33 @@ class TicTacToeGame {
         ],
       );
 
-  Widget renderBoard(
-      {Function(int, int) onPressed, bool disabled = false}) {
-    var stackIndex = 0;
+  Widget renderBoard({Function(int, int) onPressed, bool disabled = false}) {
+    var msg = '';
 
-    if (_winner != _CellType.Empty) {
-      stackIndex = 1;
+    if (_winner == _CellType.X) {
+      msg = 'X';
+    } else if (_winner == _CellType.O) {
+      msg = 'O';
     } else if (!_moreMoves) {
-      stackIndex = 2;
+      msg = '#';
     }
 
-    return IndexedStack(
-      alignment: AlignmentDirectional.center,
-      index: stackIndex,
-      children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
+    return Padding(
+        padding: EdgeInsets.all(4),
+        child: Stack(
+          alignment: AlignmentDirectional.center,
           children: [
-            _renderRow(0, onPressed: onPressed, disabled: disabled),
-            _renderRow(1, onPressed: onPressed, disabled: disabled),
-            _renderRow(2, onPressed: onPressed, disabled: disabled),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _renderRow(0, onPressed: onPressed, disabled: disabled),
+                _renderRow(1, onPressed: onPressed, disabled: disabled),
+                _renderRow(2, onPressed: onPressed, disabled: disabled),
+              ],
+            ),
+            Text(msg, textScaleFactor: 5.0),
           ],
-        ),
-        Text(_cellToString[_winner], textScaleFactor: 7.0),
-        Text("X/O", textScaleFactor: 7.0),
-      ],
-    );
+        ));
   }
 }
 
@@ -175,37 +181,45 @@ class SuperTicTacToeGame {
       }
     }
     var game = _games[row * 3 + col];
-    return Padding(
-      padding: EdgeInsets.all(8.0),
-      child: game.renderBoard(
-          onPressed: (gameRow, gameCol) {
-            onPressed(game, gameRow, gameCol);
-            _lastX = col;
-            _lastY = row;
-            _current = game.current;
-          },
-          disabled: !enabled),
-    );
+    if (!game._moreMoves || game._winner != _CellType.Empty) {
+      enabled = false;
+    }
+    return game.renderBoard(
+        onPressed: (gameRow, gameCol) {
+          onPressed(game, gameRow, gameCol);
+          _lastX = col;
+          _lastY = row;
+          _current = game.current;
+        },
+        disabled: !enabled);
   }
 
   Widget _renderRowOfGames(int row,
           {Function(TicTacToeGame, int, int) onPressed}) =>
       Row(
         mainAxisSize: MainAxisSize.min,
+        // crossAxisAlignment: CrossAxisAlignment.center,
+        // mainAxisAlignment: MainAxisAlignment.center,
         children: [
+//          Spacer(),
           _renderGame(0, row, onPressed: onPressed),
           _renderGame(1, row, onPressed: onPressed),
           _renderGame(2, row, onPressed: onPressed),
+//          Spacer(),
         ],
       );
 
   Widget renderBoard({Function(TicTacToeGame, int, int) onPressed}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      // crossAxisAlignment: CrossAxisAlignment.center,
+      // mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        //      Spacer(),
         _renderRowOfGames(0, onPressed: onPressed),
         _renderRowOfGames(1, onPressed: onPressed),
         _renderRowOfGames(2, onPressed: onPressed),
+//        Spacer(),
       ],
     );
   }

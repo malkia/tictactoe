@@ -13,28 +13,18 @@ import 'package:tictactoe/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(myApp());
+    await tester.pumpWidget(MyApp());
 
-    expect(find.text('Tic Tac Toe'), findsOneWidget);
-    expect(find.text('Exit'), findsOneWidget);
+    // Verify that our counter starts at 0.
+    expect(find.text('0'), findsOneWidget);
+    expect(find.text('1'), findsNothing);
 
-    var mainMenuButtons = find.byType(ElevatedButton);
-    print(mainMenuButtons);
-    var newGameButton = mainMenuButtons.first;
-    print(newGameButton);
-    await tester.tap(newGameButton);
+    // Tap the '+' icon and trigger a frame.
+    await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
-    // // Verify that our counter starts at 0.
-    // expect(find.text('0'), findsOneWidget);
-    // expect(find.text('1'), findsNothing);
-
-    // // Tap the '+' icon and trigger a frame.
-    // await tester.tap(find.byIcon(Icons.add));
-    // await tester.pump();
-
-    // // Verify that our counter has incremented.
-    // expect(find.text('0'), findsNothing);
-    // expect(find.text('1'), findsOneWidget);
+    // Verify that our counter has incremented.
+    expect(find.text('0'), findsNothing);
+    expect(find.text('1'), findsOneWidget);
   });
 }
