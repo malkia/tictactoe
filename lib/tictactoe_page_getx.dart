@@ -27,7 +27,7 @@ class SuperTicTacToePageGetX extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(
-        title: Text("Super Tic Tac Toe"),
+        title: Text("Super Tic Tac Foe"),
       ),
       body: Center(
         child: Obx(() => _state.value.renderBoard(

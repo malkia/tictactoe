@@ -14,7 +14,7 @@ const _cellToString = {
   _CellType.O: 'O',
 };
 
-const _checksForWin = [
+const _winningSequencesChecks = [
   [0, 0, 0, 1],
   [1, 0, 0, 1],
   [2, 0, 0, 1],
@@ -25,7 +25,45 @@ const _checksForWin = [
   [0, 2, 1, -1],
 ];
 
-class TicTacToeGame {
+abstract class _TicTacToeBoard {
+  _CellType cellAt(int x, int y);
+}
+
+_CellType _checkForWinningSequence(
+    _TicTacToeBoard board, int startX, int startY, int deltaX, int deltaY,
+    [count = 3]) {
+  final firstCell = board.cellAt(startX, startY);
+  if (firstCell != _CellType.Empty) {
+    for (var i = 1; i < count; i++) {
+      final cell = board.cellAt(startX + i * deltaX, startY + i * deltaY);
+      if (firstCell != cell) {
+        return _CellType.Empty;
+      }
+    }
+  }
+  return firstCell;
+}
+
+_CellType _checkForWinner(_TicTacToeBoard board) {
+  for (var c in _winningSequencesChecks) {
+    final cell = _checkForWinningSequence(board, c[0], c[1], c[2], c[3]);
+    if (cell != _CellType.Empty) {
+      return cell;
+    }
+  }
+  return _CellType.Empty;
+}
+
+bool _checkForMoreMoves(_TicTacToeBoard board) {
+  for (var y = 0; y < 3; y++)
+    for (var x = 0; x < 3; x++)
+      if (board.cellAt(x, y) == _CellType.Empty) {
+        return true;
+      }
+  return false;
+}
+
+class TicTacToeGame implements _TicTacToeBoard {
   final _boardCells = List<_CellType>(9);
   var _currentPlayer = _CellType.X;
   var _winner = _CellType.Empty;
@@ -40,13 +78,13 @@ class TicTacToeGame {
   TicTacToeGame() {
     _boardCells.fillRange(0, _boardCells.length, _CellType.Empty);
     _currentPlayer = _CellType.X;
-    _winner = _checkForWinner();
-    _moreMoves = _checkForMoreMoves();
+    _winner = _checkForWinner(this);
+    _moreMoves = _checkForMoreMoves(this);
     _lastCellX = -1;
     _lastCellY = -1;
   }
 
-  _CellType _cellAt(int x, int y) {
+  _CellType cellAt(int x, int y) {
     var index = y * 3 + x;
     assert(index >= 0 && index < _boardCells.length);
     return _boardCells[index];
@@ -62,47 +100,22 @@ class TicTacToeGame {
     }
     _boardCells[index] = _currentPlayer;
     _currentPlayer = _currentPlayer == _CellType.O ? _CellType.X : _CellType.O;
-    _winner = _checkForWinner();
-    _moreMoves = _checkForMoreMoves();
+    _winner = _checkForWinner(this);
+    _moreMoves = _checkForMoreMoves(this);
     _lastCellX = x;
     _lastCellY = y;
   }
 
-  bool _checkForMoreMoves() => _boardCells.contains(_CellType.Empty);
-
-  _CellType _checkForWinSequence(int x, int y, int dx, int dy) {
-    var prevCell = _CellType.Empty;
-    for (int i = 0; i < 3; i++) {
-      final index = (y + dy * i) * 3 + x + dx * i;
-      assert(index >= 0 && index < 9);
-      final cell = _boardCells[index];
-      if (i > 0 && (cell == _CellType.Empty || prevCell != cell)) {
-        return _CellType.Empty;
-      }
-      prevCell = cell;
-    }
-    return prevCell;
-  }
-
-  _CellType _checkForWinner() {
-    for (var c in _checksForWin) {
-      final cell = _checkForWinSequence(c[0], c[1], c[2], c[3]);
-      if (cell != _CellType.Empty) {
-        return cell;
-      }
-    }
-    return _CellType.Empty;
-  }
-
   Widget _renderCell(int col, int row,
       {Function(int, int) onPressed, bool disabled = false}) {
-    var cell = _cellAt(col, row);
+    var cell = cellAt(col, row);
     if (cell != _CellType.Empty) disabled = true;
     return Padding(
-      padding: EdgeInsets.all(1.0),
+      padding: EdgeInsets.all(1),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          minimumSize: Size(40, 40),
+          minimumSize: Size(44, 44),
+          visualDensity: VisualDensity.compact,
         ),
         child: Text(_cellToString[cell]),
         onPressed: disabled ? null : () => onPressed(col, row),
@@ -114,8 +127,8 @@ class TicTacToeGame {
           {Function(int, int) onPressed, bool disabled = false}) =>
       Row(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        //crossAxisAlignment: CrossAxisAlignment.center,
+        //mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _renderCell(0, row, onPressed: onPressed, disabled: disabled),
           _renderCell(1, row, onPressed: onPressed, disabled: disabled),
@@ -130,7 +143,7 @@ class TicTacToeGame {
     }
 
     return Padding(
-        padding: EdgeInsets.all(4),
+        padding: EdgeInsets.all(2),
         child: Stack(
           alignment: AlignmentDirectional.center,
           children: [
@@ -142,19 +155,26 @@ class TicTacToeGame {
                 _renderRow(2, onPressed: onPressed, disabled: disabled),
               ],
             ),
-            Text(msg, textScaleFactor: 5.0),
+            Text(
+              msg,
+              textScaleFactor: 6.0,
+            ),
           ],
         ));
   }
 }
 
-class SuperTicTacToeGame {
+class SuperTicTacToeGame implements _TicTacToeBoard {
   final _boards = List<TicTacToeGame>(9);
   var _lastBoardX = -1;
   var _lastBoardY = -1;
   var _current = _CellType.X;
 
   get current => _current;
+
+  _CellType cellAt(int x, int y) {
+    return _boards[y * 3 + x]._winner;
+  }
 
   SuperTicTacToeGame() {
     for (var i = 0; i < _boards.length; i++) _boards[i] = TicTacToeGame();
@@ -164,7 +184,7 @@ class SuperTicTacToeGame {
   }
 
   Widget _renderBoard(int boardX, int boardY,
-      {Function(TicTacToeGame, int, int) onPressed}) {
+      {Function(TicTacToeGame, int, int) onPressed, bool disabled = false}) {
     // Check if the current (this) board can be played, e.g.
     // if more moves are possible, and no winner.
     final thisBoard = _boards[boardY * 3 + boardX];
@@ -185,6 +205,7 @@ class SuperTicTacToeGame {
         enabled = (nextBoardX == boardX && nextBoardY == boardY);
       }
     }
+    if (disabled) enabled = false;
     return thisBoard.renderBoard(
         onPressed: (gameRow, gameCol) {
           onPressed(thisBoard, gameRow, gameCol);
@@ -196,23 +217,48 @@ class SuperTicTacToeGame {
   }
 
   Widget _renderBoardsRow(int row,
-          {Function(TicTacToeGame, int, int) onPressed}) =>
+          {Function(TicTacToeGame, int, int) onPressed,
+          bool disabled = false}) =>
       Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _renderBoard(0, row, onPressed: onPressed),
-          _renderBoard(1, row, onPressed: onPressed),
-          _renderBoard(2, row, onPressed: onPressed),
+          _renderBoard(0, row, onPressed: onPressed, disabled: disabled),
+          _renderBoard(1, row, onPressed: onPressed, disabled: disabled),
+          _renderBoard(2, row, onPressed: onPressed, disabled: disabled),
         ],
       );
 
   Widget renderBoard({Function(TicTacToeGame, int, int) onPressed}) {
+    var enabled = true;
+    var moreMoves = _checkForMoreMoves(this);
+    var winner = _checkForWinner(this);
+    enabled = moreMoves && winner == _CellType.Empty;
+    final disabled = !enabled;
+    var msg = _cellToString[winner];
+    if (winner == _CellType.Empty) {
+      msg = moreMoves ? '' : '#';
+    }
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _renderBoardsRow(0, onPressed: onPressed),
-        _renderBoardsRow(1, onPressed: onPressed),
-        _renderBoardsRow(2, onPressed: onPressed),
+        Text("It's ${_cellToString[_current]} turn"),
+        Stack(
+            alignment: AlignmentDirectional.center,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _renderBoardsRow(0, onPressed: onPressed, disabled: disabled),
+                  _renderBoardsRow(1, onPressed: onPressed, disabled: disabled),
+                  _renderBoardsRow(2, onPressed: onPressed, disabled: disabled),
+                ],
+              ),
+              Text(
+                msg,
+                style: TextStyle(color: Colors.red),
+                textScaleFactor: 20.0,
+              )
+            ].getRange(0, disabled ? 2 : 1).toList())
       ],
     );
   }
