@@ -21,13 +21,13 @@ jobs:
       run: flutter upgrade
       working-directory: ./
     - name: Enable Web
-      run: flutter config --enable-web --web-renderer=canvaskit --tree-shake-icons
+      run: flutter config --enable-web
       working-directory: ./
     - name: Install dependencies
       run: flutter packages get
       working-directory: ./
     - name: Build Web
-      run: flutter build web --release
+      run: flutter build web --release --web-renderer=canvaskit --tree-shake-icons
       working-directory: ./
     - name: Deploy
       run: |
