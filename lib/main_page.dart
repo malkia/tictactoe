@@ -19,7 +19,7 @@ class MainPage extends StatelessWidget {
             ElevatedButton(
               child: Text(
                 'Tic Tac Toe',
-                textScaleFactor: 4.0,
+                textScaleFactor: 3.0,
               ),
               onPressed: () => Get.to(TicTacToePageGetX()),
             ),
@@ -27,7 +27,7 @@ class MainPage extends StatelessWidget {
             ElevatedButton(
               child: Text(
                 'Super Tic Tac Toe',
-                textScaleFactor: 4.0,
+                textScaleFactor: 3.0,
               ),
               onPressed: () => Get.to(SuperTicTacToePageGetX()),
             ),
@@ -35,7 +35,7 @@ class MainPage extends StatelessWidget {
             ElevatedButton(
               child: Text(
                 'Exit',
-                textScaleFactor: 4.0,
+                textScaleFactor: 3.0,
               ),
               onPressed: () => exit(0),
             ),

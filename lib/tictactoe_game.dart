@@ -54,9 +54,9 @@ _CellType _checkForWinner(_TicTacToeBoard board) {
   return _CellType.Empty;
 }
 
-bool _checkForMoreMoves(_TicTacToeBoard board) {
-  for (var y = 0; y < 3; y++)
-    for (var x = 0; x < 3; x++)
+bool _checkForMoreMoves(_TicTacToeBoard board, [count = 3]) {
+  for (var y = 0; y < count; y++)
+    for (var x = 0; x < count; x++)
       if (board.cellAt(x, y) == _CellType.Empty) {
         return true;
       }
@@ -110,11 +110,12 @@ class TicTacToeGame implements _TicTacToeBoard {
       {Function(int, int) onPressed, bool disabled = false}) {
     var cell = cellAt(col, row);
     if (cell != _CellType.Empty) disabled = true;
+    if (!disabled) disabled = !_moreMoves || _winner != _CellType.Empty;
     return Padding(
-      padding: EdgeInsets.all(1),
+      padding: EdgeInsets.all(0.5),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          minimumSize: Size(44, 44),
+          minimumSize: Size(40, 40),
           visualDensity: VisualDensity.compact,
         ),
         child: Text(_cellToString[cell]),
@@ -127,8 +128,6 @@ class TicTacToeGame implements _TicTacToeBoard {
           {Function(int, int) onPressed, bool disabled = false}) =>
       Row(
         mainAxisSize: MainAxisSize.min,
-        //crossAxisAlignment: CrossAxisAlignment.center,
-        //mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _renderCell(0, row, onPressed: onPressed, disabled: disabled),
           _renderCell(1, row, onPressed: onPressed, disabled: disabled),
@@ -141,7 +140,6 @@ class TicTacToeGame implements _TicTacToeBoard {
     if (_winner == _CellType.Empty) {
       msg = _moreMoves ? '' : '#';
     }
-
     return Padding(
         padding: EdgeInsets.all(2),
         child: Stack(
@@ -157,7 +155,7 @@ class TicTacToeGame implements _TicTacToeBoard {
             ),
             Text(
               msg,
-              textScaleFactor: 6.0,
+              textScaleFactor: 5.0,
             ),
           ],
         ));
@@ -173,11 +171,15 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
   get current => _current;
 
   _CellType cellAt(int x, int y) {
+    assert(x >= 0 && x < 3);
+    assert(y >= 0 && y < 3);
     return _boards[y * 3 + x]._winner;
   }
 
   SuperTicTacToeGame() {
-    for (var i = 0; i < _boards.length; i++) _boards[i] = TicTacToeGame();
+    for (var i = 0; i < _boards.length; i++) {
+      _boards[i] = TicTacToeGame();
+    }
     _lastBoardX = -1;
     _lastBoardY = -1;
     _current = _CellType.X;
@@ -188,7 +190,9 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
     // Check if the current (this) board can be played, e.g.
     // if more moves are possible, and no winner.
     final thisBoard = _boards[boardY * 3 + boardX];
-    var enabled = thisBoard._moreMoves && thisBoard._winner == _CellType.Empty;
+    var enabled = !disabled &&
+        thisBoard._moreMoves &&
+        thisBoard._winner == _CellType.Empty;
     if (enabled && _lastBoardX != -1) {
       assert(_lastBoardX >= 0 && _lastBoardX < 3);
       assert(_lastBoardY >= 0 && _lastBoardY < 3);
@@ -199,13 +203,12 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
       assert(nextBoardY >= 0 && nextBoardY < 3);
       // Find the next board that should be played.
       final nextBoard = _boards[nextBoardY * 3 + nextBoardX];
-      // Check if the next board is playable If the next board is playable (e.g. more moves possible, no winner)
+      // Check if the next board is playable (e.g. moves are possible, but no winner)
       // Then enable only it, and disable the rest, otherwise enable them.
       if (nextBoard._moreMoves && nextBoard._winner == _CellType.Empty) {
         enabled = (nextBoardX == boardX && nextBoardY == boardY);
       }
     }
-    if (disabled) enabled = false;
     return thisBoard.renderBoard(
         onPressed: (gameRow, gameCol) {
           onPressed(thisBoard, gameRow, gameCol);
@@ -229,11 +232,9 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
       );
 
   Widget renderBoard({Function(TicTacToeGame, int, int) onPressed}) {
-    var enabled = true;
     var moreMoves = _checkForMoreMoves(this);
     var winner = _checkForWinner(this);
-    enabled = moreMoves && winner == _CellType.Empty;
-    final disabled = !enabled;
+    var disabled = !moreMoves || winner != _CellType.Empty;
     var msg = _cellToString[winner];
     if (winner == _CellType.Empty) {
       msg = moreMoves ? '' : '#';
@@ -241,7 +242,7 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("It's ${_cellToString[_current]} turn"),
+        Text(disabled ? "" : "It's ${_cellToString[_current]} turn"),
         Stack(
             alignment: AlignmentDirectional.center,
             children: [
