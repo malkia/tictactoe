@@ -243,23 +243,22 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(disabled ? "" : "It's ${_cellToString[_current]} turn"),
-        Stack(
-            alignment: AlignmentDirectional.center,
+        Stack(alignment: AlignmentDirectional.center, children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _renderBoardsRow(0, onPressed: onPressed, disabled: disabled),
-                  _renderBoardsRow(1, onPressed: onPressed, disabled: disabled),
-                  _renderBoardsRow(2, onPressed: onPressed, disabled: disabled),
-                ],
-              ),
-              Text(
-                msg,
-                style: TextStyle(color: Colors.red),
-                textScaleFactor: 20.0,
-              )
-            ].getRange(0, disabled ? 2 : 1).toList())
+              _renderBoardsRow(0, onPressed: onPressed, disabled: disabled),
+              _renderBoardsRow(1, onPressed: onPressed, disabled: disabled),
+              _renderBoardsRow(2, onPressed: onPressed, disabled: disabled),
+            ],
+          ),
+          if (disabled)
+            Text(
+              msg,
+              style: TextStyle(color: Colors.red),
+              textScaleFactor: 20.0,
+            )
+        ])
       ],
     );
   }
