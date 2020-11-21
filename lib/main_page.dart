@@ -1,9 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import 'tictactoe_page_getx.dart';
+import 'tictactoe_page.dart';
 
 class MainPage extends StatelessWidget {
   @override
@@ -16,12 +15,22 @@ class MainPage extends StatelessWidget {
           children: [
             ElevatedButton(
               child: Text('Tic Tac Toe', textScaleFactor: 3.0),
-              onPressed: () => Get.to(TicTacToePage()),
+              onPressed: () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TicTacToePage()),
+                )
+              },
             ),
             ElevatedButton(
               child: Text('Super\nTic Tac Toe',
                   textScaleFactor: 3.0, textAlign: TextAlign.center),
-              onPressed: () => Get.to(SuperTicTacToePage()),
+              onPressed: () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SuperTicTacToePage()),
+                )
+              },
             ),
             ElevatedButton(
               child: Text('Exit', textScaleFactor: 3.0),
