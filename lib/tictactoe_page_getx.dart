@@ -1,40 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
 import 'tictactoe_game.dart';
 
-class TicTacToePageGetX extends StatelessWidget {
-  final _state = TicTacToeGame().obs;
-
+class TicTacToePage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(
-        title: Text("Tic Tac Toe"),
-      ),
-      body: Center(
-        child: Obx(() => _state.value.renderBoard(
-              onPressed: (int col, int row) {
-                _state.value.move(col, row);
-                _state.refresh();
-              },
-            )),
-      ));
+  _TicTacToePageState createState() => _TicTacToePageState();
 }
 
-class SuperTicTacToePageGetX extends StatelessWidget {
-  final _state = SuperTicTacToeGame().obs;
-
+class _TicTacToePageState extends State<TicTacToePage> {
+  final _state = TicTacToeGame();
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(
-        title: Text("Super Tic Tac Foe"),
-      ),
+      appBar: AppBar(title: Text("Tic Tac Toe")),
       body: Center(
-        child: Obx(() => _state.value.renderBoard(
-              onPressed: (TicTacToeGame game, int col, int row) {
-                game.move(col, row, current: _state.value.current);
-                _state.refresh();
-              },
-            )),
-      ));
+          child: _state.renderBoard(
+              onPressed: (int col, int row) => setState(
+                    () => _state.move(col, row),
+                  ))));
+}
+
+class SuperTicTacToePage extends StatefulWidget {
+  @override
+  _SuperTicTacToePageState createState() => _SuperTicTacToePageState();
+}
+
+class _SuperTicTacToePageState extends State<SuperTicTacToePage> {
+  final _state = SuperTicTacToeGame();
+  @override
+  Widget build(BuildContext context) => Scaffold(
+      appBar: AppBar(title: Text("Super Tic Tac Toe")),
+      body: Center(
+          child: _state.renderBoard(
+              onPressed: (TicTacToeGame game, int col, int row) => setState(
+                    () => game.move(col, row, current: _state.current),
+                  ))));
 }
