@@ -107,7 +107,7 @@ class TicTacToeGame implements _TicTacToeBoard {
   }
 
   Widget _renderCell(int col, int row,
-      {Function(int, int) onPressed, bool disabled = false}) {
+      {Function(int, int) onPressed, bool disabled = false, size = 40}) {
     var cell = cellAt(col, row);
     if (cell != _CellType.Empty) disabled = true;
     if (!disabled) disabled = !_moreMoves || _winner != _CellType.Empty;
@@ -115,17 +115,17 @@ class TicTacToeGame implements _TicTacToeBoard {
       padding: EdgeInsets.all(0.5),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          minimumSize: Size(40, 40),
+          minimumSize: Size(size, size),
           visualDensity: VisualDensity.compact,
         ),
-        child: Text(_cellToString[cell]),
+        child: Text(_cellToString[cell], textScaleFactor: size / 30),
         onPressed: disabled ? null : () => onPressed(col, row),
       ),
     );
   }
 
   Widget renderBoard(BuildContext context,
-      {Function(int, int) onPressed, bool disabled = false}) {
+      {Function(int, int) onPressed, bool disabled = false, size = 40}) {
     var msg = _cellToString[_winner];
     if (_winner == _CellType.Empty) {
       msg = _moreMoves ? '' : '#';
@@ -140,13 +140,13 @@ class TicTacToeGame implements _TicTacToeBoard {
                 Row(mainAxisSize: MainAxisSize.min, children: [
                   for (var col = 0; col < 3; col++)
                     _renderCell(col, row,
-                        onPressed: onPressed, disabled: disabled)
+                        onPressed: onPressed, disabled: disabled, size: size)
                 ]),
             ]),
             if (msg != '')
               Text(
                 msg,
-                textScaleFactor: 5.0,
+                textScaleFactor: size / 10.0,
               ),
           ],
         ));
@@ -177,7 +177,9 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
   }
 
   Widget _renderBoard(BuildContext context, int boardX, int boardY,
-      {Function(TicTacToeGame, int, int) onPressed, bool disabled = false}) {
+      {Function(TicTacToeGame, int, int) onPressed,
+      bool disabled = false,
+      size = 40}) {
     // Check if the current (this) board can be played, e.g.
     // if more moves are possible, and no winner.
     final thisBoard = _boards[boardY * 3 + boardX];
@@ -205,7 +207,7 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
       _lastBoardX = boardX;
       _lastBoardY = boardY;
       _current = thisBoard.currentPlayer;
-    }, disabled: !enabled);
+    }, disabled: !enabled, size: size);
   }
 
   Widget renderBoard(BuildContext context,
@@ -217,27 +219,43 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
     if (winner == _CellType.Empty) {
       msg = moreMoves ? '' : '#';
     }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(disabled ? "" : "It's ${_cellToString[_current]} turn"),
-        Stack(alignment: AlignmentDirectional.center, children: [
-          Column(mainAxisSize: MainAxisSize.min, children: [
-            for (var row = 0; row < 3; row++)
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                for (var col = 0; col < 3; col++)
-                  _renderBoard(context, col, row,
-                      onPressed: onPressed, disabled: disabled)
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        //print("$constraints");
+        var desiredSize = constraints.maxHeight - 50;
+        if (desiredSize > constraints.maxWidth)
+          desiredSize = constraints.maxWidth;
+        if (desiredSize < 5) desiredSize = 5;
+        //print("desiredSize=${desiredSize}");
+        return Container(
+          width: desiredSize,
+          height: desiredSize,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(disabled ? "" : "It's ${_cellToString[_current]} turn"),
+              Stack(alignment: AlignmentDirectional.center, children: [
+                Column(mainAxisSize: MainAxisSize.min, children: [
+                  for (var row = 0; row < 3; row++)
+                    Row(mainAxisSize: MainAxisSize.min, children: [
+                      for (var col = 0; col < 3; col++)
+                        _renderBoard(context, col, row,
+                            onPressed: onPressed,
+                            disabled: disabled,
+                            size: desiredSize / 9)
+                    ])
+                ]),
+                if (disabled)
+                  Text(
+                    msg,
+                    style: TextStyle(color: Colors.red),
+                    textScaleFactor: desiredSize / 20,
+                  )
               ])
-          ]),
-          if (disabled)
-            Text(
-              msg,
-              style: TextStyle(color: Colors.red),
-              textScaleFactor: 20.0,
-            )
-        ])
-      ],
+            ],
+          ),
+        );
+      },
     );
   }
 }
