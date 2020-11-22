@@ -112,7 +112,7 @@ class TicTacToeGame implements _TicTacToeBoard {
     if (cell != _CellType.Empty) disabled = true;
     if (!disabled) disabled = !_moreMoves || _winner != _CellType.Empty;
     return Padding(
-      padding: EdgeInsets.all(0.5),
+      padding: EdgeInsets.all(2),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           minimumSize: Size(size, size),
@@ -131,7 +131,7 @@ class TicTacToeGame implements _TicTacToeBoard {
       msg = _moreMoves ? '' : '#';
     }
     return Padding(
-        padding: EdgeInsets.all(2),
+        padding: EdgeInsets.all(4),
         child: Stack(
           alignment: AlignmentDirectional.center,
           children: [
@@ -221,12 +221,10 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
     }
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        //print("$constraints");
         var desiredSize = constraints.maxHeight - 50;
         if (desiredSize > constraints.maxWidth)
           desiredSize = constraints.maxWidth;
-        if (desiredSize < 5) desiredSize = 5;
-        //print("desiredSize=${desiredSize}");
+        if (desiredSize < 3) desiredSize = 3;
         return Container(
           width: desiredSize,
           height: desiredSize,
