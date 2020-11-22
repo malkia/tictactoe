@@ -12,7 +12,7 @@ class _TicTacToePageState extends State<TicTacToePage> {
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: Text("Tic Tac Toe")),
       body: Center(
-          child: _state.renderBoard(
+          child: _state.renderBoard(context,
               onPressed: (int col, int row) => setState(
                     () => _state.move(col, row),
                   ))));
@@ -29,7 +29,7 @@ class _SuperTicTacToePageState extends State<SuperTicTacToePage> {
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: Text("Super Tic Tac Toe")),
       body: Center(
-          child: _state.renderBoard(
+          child: _state.renderBoard(context,
               onPressed: (TicTacToeGame game, int col, int row) => setState(
                     () => game.move(col, row, current: _state.current),
                   ))));

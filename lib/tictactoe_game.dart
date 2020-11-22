@@ -124,18 +124,8 @@ class TicTacToeGame implements _TicTacToeBoard {
     );
   }
 
-  Widget _renderRow(int row,
-          {Function(int, int) onPressed, bool disabled = false}) =>
-      Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _renderCell(0, row, onPressed: onPressed, disabled: disabled),
-          _renderCell(1, row, onPressed: onPressed, disabled: disabled),
-          _renderCell(2, row, onPressed: onPressed, disabled: disabled),
-        ],
-      );
-
-  Widget renderBoard({Function(int, int) onPressed, bool disabled = false}) {
+  Widget renderBoard(BuildContext context,
+      {Function(int, int) onPressed, bool disabled = false}) {
     var msg = _cellToString[_winner];
     if (_winner == _CellType.Empty) {
       msg = _moreMoves ? '' : '#';
@@ -145,18 +135,19 @@ class TicTacToeGame implements _TicTacToeBoard {
         child: Stack(
           alignment: AlignmentDirectional.center,
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _renderRow(0, onPressed: onPressed, disabled: disabled),
-                _renderRow(1, onPressed: onPressed, disabled: disabled),
-                _renderRow(2, onPressed: onPressed, disabled: disabled),
-              ],
-            ),
-            Text(
-              msg,
-              textScaleFactor: 5.0,
-            ),
+            Column(mainAxisSize: MainAxisSize.min, children: [
+              for (var row = 0; row < 3; row++)
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  for (var col = 0; col < 3; col++)
+                    _renderCell(col, row,
+                        onPressed: onPressed, disabled: disabled)
+                ]),
+            ]),
+            if (msg != '')
+              Text(
+                msg,
+                textScaleFactor: 5.0,
+              ),
           ],
         ));
   }
@@ -185,7 +176,7 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
     _current = _CellType.X;
   }
 
-  Widget _renderBoard(int boardX, int boardY,
+  Widget _renderBoard(BuildContext context, int boardX, int boardY,
       {Function(TicTacToeGame, int, int) onPressed, bool disabled = false}) {
     // Check if the current (this) board can be played, e.g.
     // if more moves are possible, and no winner.
@@ -209,29 +200,16 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
         enabled = (nextBoardX == boardX && nextBoardY == boardY);
       }
     }
-    return thisBoard.renderBoard(
-        onPressed: (gameRow, gameCol) {
-          onPressed(thisBoard, gameRow, gameCol);
-          _lastBoardX = boardX;
-          _lastBoardY = boardY;
-          _current = thisBoard.currentPlayer;
-        },
-        disabled: !enabled);
+    return thisBoard.renderBoard(context, onPressed: (gameRow, gameCol) {
+      onPressed(thisBoard, gameRow, gameCol);
+      _lastBoardX = boardX;
+      _lastBoardY = boardY;
+      _current = thisBoard.currentPlayer;
+    }, disabled: !enabled);
   }
 
-  Widget _renderBoardsRow(int row,
-          {Function(TicTacToeGame, int, int) onPressed,
-          bool disabled = false}) =>
-      Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _renderBoard(0, row, onPressed: onPressed, disabled: disabled),
-          _renderBoard(1, row, onPressed: onPressed, disabled: disabled),
-          _renderBoard(2, row, onPressed: onPressed, disabled: disabled),
-        ],
-      );
-
-  Widget renderBoard({Function(TicTacToeGame, int, int) onPressed}) {
+  Widget renderBoard(BuildContext context,
+      {Function(TicTacToeGame, int, int) onPressed}) {
     var moreMoves = _checkForMoreMoves(this);
     var winner = _checkForWinner(this);
     var disabled = !moreMoves || winner != _CellType.Empty;
@@ -244,14 +222,14 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
       children: [
         Text(disabled ? "" : "It's ${_cellToString[_current]} turn"),
         Stack(alignment: AlignmentDirectional.center, children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _renderBoardsRow(0, onPressed: onPressed, disabled: disabled),
-              _renderBoardsRow(1, onPressed: onPressed, disabled: disabled),
-              _renderBoardsRow(2, onPressed: onPressed, disabled: disabled),
-            ],
-          ),
+          Column(mainAxisSize: MainAxisSize.min, children: [
+            for (var row = 0; row < 3; row++)
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                for (var col = 0; col < 3; col++)
+                  _renderBoard(context, col, row,
+                      onPressed: onPressed, disabled: disabled)
+              ])
+          ]),
           if (disabled)
             Text(
               msg,
