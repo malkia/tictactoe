@@ -13,15 +13,15 @@ class MainPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ElevatedButton(
-              child: Text('Tic Tac Toe', textScaleFactor: 3.0),
-              onPressed: () => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TicTacToePage()),
-                )
-              },
-            ),
+            // ElevatedButton(
+            //   child: Text('Tic Tac Toe', textScaleFactor: 3.0),
+            //   onPressed: () => {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => TicTacToePage()),
+            //     )
+            //   },
+            // ),
             ElevatedButton(
               child: Text('Super\nTic Tac Toe',
                   textScaleFactor: 3.0, textAlign: TextAlign.center),

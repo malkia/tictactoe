@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 // Great article, and the first one that I remember learning about it
@@ -30,11 +31,10 @@ abstract class _TicTacToeBoard {
 }
 
 _CellType _checkForWinningSequence(
-    _TicTacToeBoard board, int startX, int startY, int deltaX, int deltaY,
-    [count = 3]) {
+    _TicTacToeBoard board, int startX, int startY, int deltaX, int deltaY) {
   final firstCell = board.cellAt(startX, startY);
   if (firstCell != _CellType.Empty) {
-    for (var i = 1; i < count; i++) {
+    for (var i = 1; i < 3; i++) {
       final cell = board.cellAt(startX + i * deltaX, startY + i * deltaY);
       if (firstCell != cell) {
         return _CellType.Empty;
@@ -54,9 +54,9 @@ _CellType _checkForWinner(_TicTacToeBoard board) {
   return _CellType.Empty;
 }
 
-bool _checkForMoreMoves(_TicTacToeBoard board, [count = 3]) {
-  for (var y = 0; y < count; y++)
-    for (var x = 0; x < count; x++)
+bool _checkForMoreMoves(_TicTacToeBoard board) {
+  for (var y = 0; y < 3; y++)
+    for (var x = 0; x < 3; x++)
       if (board.cellAt(x, y) == _CellType.Empty) {
         return true;
       }
@@ -64,7 +64,7 @@ bool _checkForMoreMoves(_TicTacToeBoard board, [count = 3]) {
 }
 
 class TicTacToeGame implements _TicTacToeBoard {
-  final _boardCells = List<_CellType>(9);
+  final _boardCells = List<_CellType>(3 * 3);
   var _currentPlayer = _CellType.X;
   var _winner = _CellType.Empty;
   var _moreMoves = true;
@@ -75,25 +75,27 @@ class TicTacToeGame implements _TicTacToeBoard {
   get lastCellY => _lastCellY;
   get currentPlayer => _currentPlayer;
 
-  TicTacToeGame() {
+  TicTacToeGame()
+      : _currentPlayer = _CellType.X,
+        _lastCellX = -1,
+        _lastCellY = -1 {
     _boardCells.fillRange(0, _boardCells.length, _CellType.Empty);
-    _currentPlayer = _CellType.X;
     _winner = _checkForWinner(this);
     _moreMoves = _checkForMoreMoves(this);
-    _lastCellX = -1;
-    _lastCellY = -1;
   }
 
   _CellType cellAt(int x, int y) {
+    assert(x >= 0 && x < 3);
+    assert(y >= 0 && y < 3);
     var index = y * 3 + x;
-    assert(index >= 0 && index < _boardCells.length);
     return _boardCells[index];
   }
 
   void move(int x, int y, {_CellType current = _CellType.Empty}) {
     assert(_winner == _CellType.Empty);
+    assert(x >= 0 && x < 3);
+    assert(y >= 0 && y < 3);
     final index = y * 3 + x;
-    assert(index >= 0 && index < _boardCells.length);
     assert(_boardCells[index] == _CellType.Empty);
     if (current != _CellType.Empty) {
       _currentPlayer = current;
@@ -107,7 +109,7 @@ class TicTacToeGame implements _TicTacToeBoard {
   }
 
   Widget _renderCell(int col, int row,
-      {Function(int, int) onPressed, bool disabled = false, size = 40}) {
+      {Function(int, int) onPressed, bool disabled = false, size}) {
     var cell = cellAt(col, row);
     if (cell != _CellType.Empty) disabled = true;
     if (!disabled) disabled = !_moreMoves || _winner != _CellType.Empty;
@@ -115,8 +117,7 @@ class TicTacToeGame implements _TicTacToeBoard {
       padding: EdgeInsets.all(2),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          minimumSize: Size(size, size),
-          visualDensity: VisualDensity.compact,
+          minimumSize: Size(double.infinity, double.infinity),
         ),
         child: Text(_cellToString[cell], textScaleFactor: size / 30),
         onPressed: disabled ? null : () => onPressed(col, row),
@@ -125,7 +126,7 @@ class TicTacToeGame implements _TicTacToeBoard {
   }
 
   Widget renderBoard(BuildContext context,
-      {Function(int, int) onPressed, bool disabled = false, size = 40}) {
+      {Function(int, int) onPressed, bool disabled = false, size}) {
     var msg = _cellToString[_winner];
     if (_winner == _CellType.Empty) {
       msg = _moreMoves ? '' : '#';
@@ -137,11 +138,17 @@ class TicTacToeGame implements _TicTacToeBoard {
           children: [
             Column(mainAxisSize: MainAxisSize.min, children: [
               for (var row = 0; row < 3; row++)
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  for (var col = 0; col < 3; col++)
-                    _renderCell(col, row,
-                        onPressed: onPressed, disabled: disabled, size: size)
-                ]),
+                Expanded(
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    for (var col = 0; col < 3; col++)
+                      Expanded(
+                        child: _renderCell(col, row,
+                            onPressed: onPressed,
+                            disabled: disabled,
+                            size: size),
+                      )
+                  ]),
+                ),
             ]),
             if (msg != '')
               Text(
@@ -221,27 +228,28 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
     }
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        var desiredSize = constraints.maxHeight - 50;
-        if (desiredSize > constraints.maxWidth)
-          desiredSize = constraints.maxWidth;
-        if (desiredSize < 3) desiredSize = 3;
-        return Container(
+        var desiredSize = min(constraints.maxWidth, constraints.maxHeight);
+        return SizedBox(
           width: desiredSize,
           height: desiredSize,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(disabled ? "" : "It's ${_cellToString[_current]} turn"),
-              Stack(alignment: AlignmentDirectional.center, children: [
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(disabled ? "" : "It's ${_cellToString[_current]} turn",
+                textScaleFactor: desiredSize / 150),
+            Expanded(
+              child: Stack(alignment: AlignmentDirectional.center, children: [
                 Column(mainAxisSize: MainAxisSize.min, children: [
                   for (var row = 0; row < 3; row++)
-                    Row(mainAxisSize: MainAxisSize.min, children: [
-                      for (var col = 0; col < 3; col++)
-                        _renderBoard(context, col, row,
-                            onPressed: onPressed,
-                            disabled: disabled,
-                            size: desiredSize / 9)
-                    ])
+                    Expanded(
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        for (var col = 0; col < 3; col++)
+                          Expanded(
+                            child: _renderBoard(context, col, row,
+                                onPressed: onPressed,
+                                disabled: disabled,
+                                size: desiredSize / 9),
+                          )
+                      ]),
+                    )
                 ]),
                 if (disabled)
                   Text(
@@ -249,9 +257,9 @@ class SuperTicTacToeGame implements _TicTacToeBoard {
                     style: TextStyle(color: Colors.red),
                     textScaleFactor: desiredSize / 20,
                   )
-              ])
-            ],
-          ),
+              ]),
+            )
+          ]),
         );
       },
     );
