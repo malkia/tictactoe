@@ -67,6 +67,7 @@ abstract class _TicTacToeBoard {
 
 final _maximizedElevatedButtonStyle = ElevatedButton.styleFrom(
   minimumSize: const Size(double.infinity, double.infinity),
+  side: BorderSide.none,
 );
 
 class TicTacToeGame extends _TicTacToeBoard {
@@ -158,14 +159,24 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
 
   get current => _current;
 
-  _State cellAt(int x, int y) {
+  TicTacToeGame _gameAt(int x, int y) {
     assert(x >= 0 && x < 3);
     assert(y >= 0 && y < 3);
-    return _boards[y * 3 + x]._winner;
+    return _boards[y * 3 + x];
+  }
+
+  _State cellAt(int x, int y) => _gameAt(x, y)._winner;
+
+  void move(int gameX, int gameY, int cellX, int cellY) {
+    final game = _gameAt(gameX, gameY);
+    game.move(cellX, cellY, current: _current);
+    _lastBoardX = gameX;
+    _lastBoardY = gameY;
+    _current = game.currentPlayer;
   }
 
   Widget _renderBoard(BuildContext context, int boardX, int boardY,
-      {Function(TicTacToeGame, int, int) onPressed,
+      {Function(int, int, int, int) onPressed,
       bool disabled = false,
       size = 40}) {
     // Check if the current (this) board can be played, e.g.
@@ -189,15 +200,12 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
       }
     }
     return thisBoard.renderBoard(context, onPressed: (gameRow, gameCol) {
-      onPressed(thisBoard, gameRow, gameCol);
-      _lastBoardX = boardX;
-      _lastBoardY = boardY;
-      _current = thisBoard.currentPlayer;
+      onPressed(boardX, boardY, gameRow, gameCol);
     }, disabled: !enabled, size: size);
   }
 
   Widget renderBoard(BuildContext context,
-      {Function(TicTacToeGame, int, int) onPressed}) {
+      {Function(int, int, int, int) onPressed, Function() onUndoPressed}) {
     final winner = checkForWinner();
     final disabled = winner != _State.Empty;
     return LayoutBuilder(
@@ -207,8 +215,21 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
           width: desiredSize,
           height: desiredSize,
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(disabled ? "" : "It's ${_stateToString[_current]} turn",
-                textScaleFactor: desiredSize / 150),
+            Row(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Text(
+                        disabled ? "" : "It's ${_stateToString[_current]} turn",
+                        textScaleFactor: desiredSize / 150),
+                  ),
+                ),
+                ElevatedButton(
+                  child: Text('Undo', textScaleFactor: desiredSize / 300),
+                  onPressed: onUndoPressed,
+                )
+              ],
+            ),
             Expanded(
               child: Stack(alignment: AlignmentDirectional.center, children: [
                 Column(mainAxisSize: MainAxisSize.min, children: [
