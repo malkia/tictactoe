@@ -9,15 +9,15 @@ import 'package:flutter/material.dart';
 
 enum _State { Empty, X, O, Tie }
 
-const _stateToString = {
-  _State.Empty: '',
-  _State.X: 'X',
-  _State.O: 'O',
-  _State.Tie: '#',
-};
-
 abstract class _TicTacToeBoard {
   _State cellAt(int x, int y);
+
+  static const _stateToString = {
+    _State.Empty: '',
+    _State.X: 'X',
+    _State.O: 'O',
+    _State.Tie: '#',
+  };
 
   static const _winningSequencesChecks = [
     [0, 0, 0, 1],
@@ -68,6 +68,10 @@ abstract class _TicTacToeBoard {
 final _maximizedElevatedButtonStyle = ElevatedButton.styleFrom(
   minimumSize: const Size(double.infinity, double.infinity),
   side: BorderSide.none,
+  padding: EdgeInsets.all(0),
+  elevation: 0,
+  visualDensity: VisualDensity.compact,
+  shape: BeveledRectangleBorder(),
 );
 
 class TicTacToeGame extends _TicTacToeBoard {
@@ -118,10 +122,11 @@ class TicTacToeGame extends _TicTacToeBoard {
       disabled = _winner != _State.Empty;
     }
     return Padding(
-      padding: const EdgeInsets.all(2),
+      padding: EdgeInsets.all(size / 40),
       child: ElevatedButton(
         style: _maximizedElevatedButtonStyle,
-        child: Text(_stateToString[cell], textScaleFactor: size / 30),
+        child: Text(_TicTacToeBoard._stateToString[cell],
+            textAlign: TextAlign.center, textScaleFactor: size / 30),
         onPressed: disabled ? null : () => onPressed(col, row),
       ),
     );
@@ -130,7 +135,7 @@ class TicTacToeGame extends _TicTacToeBoard {
   Widget renderBoard(BuildContext context,
           {Function(int, int) onPressed, bool disabled = false, size}) =>
       Padding(
-          padding: const EdgeInsets.all(4),
+          padding: EdgeInsets.all(size / 20),
           child: Stack(alignment: AlignmentDirectional.center, children: [
             Column(mainAxisSize: MainAxisSize.min, children: [
               for (var row = 0; row < 3; row++)
@@ -147,7 +152,8 @@ class TicTacToeGame extends _TicTacToeBoard {
                 )
             ]),
             if (_winner != _State.Empty)
-              Text(_stateToString[_winner], textScaleFactor: size / 10.0)
+              Text(_TicTacToeBoard._stateToString[_winner],
+                  textScaleFactor: size / 10.0)
           ]));
 }
 
@@ -220,12 +226,16 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
                 Expanded(
                   child: Center(
                     child: Text(
-                        disabled ? "" : "It's ${_stateToString[_current]} turn",
+                        disabled
+                            ? ""
+                            : "It's ${_TicTacToeBoard._stateToString[_current]} turn",
                         textScaleFactor: desiredSize / 150),
                   ),
                 ),
                 ElevatedButton(
-                  child: Text('Undo', textScaleFactor: desiredSize / 300),
+                  child: Text('Undo',
+                      textAlign: TextAlign.center,
+                      textScaleFactor: desiredSize / 300),
                   onPressed: onUndoPressed,
                 )
               ],
@@ -246,7 +256,7 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
                     )
                 ]),
                 if (disabled)
-                  Text(_stateToString[winner],
+                  Text(_TicTacToeBoard._stateToString[winner],
                       style: const TextStyle(color: Colors.red),
                       textScaleFactor: desiredSize / 20)
               ]),

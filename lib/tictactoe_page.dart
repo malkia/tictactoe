@@ -23,15 +23,15 @@ class SuperTicTacToePage extends StatefulWidget {
   _SuperTicTacToePageState createState() => _SuperTicTacToePageState();
 }
 
-class _Record {
+class _SuperTicTacToeRecord {
   int gameX, gameY;
   int cellX, cellY;
-  _Record(this.gameX, this.gameY, this.cellX, this.cellY);
+  _SuperTicTacToeRecord(this.gameX, this.gameY, this.cellX, this.cellY);
 }
 
 class _SuperTicTacToePageState extends State<SuperTicTacToePage> {
   var _state = SuperTicTacToeGame();
-  final _record = List<_Record>();
+  final _record = List<_SuperTicTacToeRecord>();
   @override
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: Text("Super Tic Tac Toe")),
@@ -39,7 +39,7 @@ class _SuperTicTacToePageState extends State<SuperTicTacToePage> {
         child: _state.renderBoard(context,
             onPressed: (int gameX, int gameY, int cellX, int cellY) => setState(
                   () {
-                    var r = _Record(gameX, gameY, cellX, cellY);
+                    var r = _SuperTicTacToeRecord(gameX, gameY, cellX, cellY);
                     _record.add(r);
                     _state.move(gameX, gameY, cellX, cellY);
                   },
