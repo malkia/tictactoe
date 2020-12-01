@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 
 // Great article, and the first one that I remember learning about it
 // https://mathwithbaddrawings.com/2013/06/16/ultimate-tic-tac-toe/
@@ -123,11 +124,14 @@ class TicTacToeGame extends _TicTacToeBoard {
     }
     return Padding(
       padding: EdgeInsets.all(size / 40),
-      child: ElevatedButton(
-        style: _maximizedElevatedButtonStyle,
-        child: Text(_TicTacToeBoard._stateToString[cell],
-            textAlign: TextAlign.center, textScaleFactor: size / 30),
-        onPressed: disabled ? null : () => onPressed(col, row),
+      child: Semantics(
+        tagForChildren: SemanticsTag("cell_$col$row"),
+        child: ElevatedButton(
+          style: _maximizedElevatedButtonStyle,
+          child: Text(_TicTacToeBoard._stateToString[cell],
+              textAlign: TextAlign.center, textScaleFactor: size / 30),
+          onPressed: disabled ? null : () => onPressed(col, row),
+        ),
       ),
     );
   }
