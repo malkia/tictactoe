@@ -29,6 +29,9 @@ jobs:
     - name: Build Web
       run: flutter build web --release --web-renderer=canvaskit --tree-shake-icons
       working-directory: ./
+    - name: Test
+      run: flutter test
+      working-directory: ./
     - name: Deploy
       run: |
         cd build/web
