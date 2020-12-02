@@ -19,20 +19,29 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
   RunLoop run_loop;
+  // RunLoop run_loop2;
 
   flutter::DartProject project(L"data");
+  // flutter::DartProject project2(L"data");
 
   std::vector<std::string> command_line_arguments =
       GetCommandLineArguments();
 
-  project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
+  project.set_dart_entrypoint_arguments(command_line_arguments);
+  // project2.set_dart_entrypoint_arguments(command_line_arguments);
 
   FlutterWindow window(&run_loop, project);
+  // FlutterWindow window2(&run_loop2, project2);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
   if (!window.CreateAndShow(L"tictactoe", origin, size)) {
     return EXIT_FAILURE;
   }
+  // Win32Window::Point origin2(50, 50);
+  // Win32Window::Size size2(1280, 720);
+  // if (!window2.CreateAndShow(L"tictactoe", origin2, size2)) {
+  //   return EXIT_FAILURE;
+  // }
   window.SetQuitOnClose(true);
 
   run_loop.Run();

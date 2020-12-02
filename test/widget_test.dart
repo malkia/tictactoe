@@ -17,15 +17,11 @@ void _printCells(List<TicTacToeCell> cells) {
     var text = cell.child as Text;
     var data = text.data;
     var enabled = cell.onPressed != null;
-    if (index % 27 == 0) {
-      print("");
+    if (index > 0 && index % 27 == 0) {
+      print("---+---+---");
     }
-    if (index % 3 == 0) line = line + "  ";
-    line = line +
-        //index.toString().padLeft(3) +
-        (enabled ? "[" : "<") +
-        data.padLeft(1) +
-        (enabled ? "]" : ">");
+    if ((index % 9 != 0) && index % 3 == 0) line = line + "|";
+    line = line + (data == '' ? (enabled ? ':' : ' ') : data.toLowerCase());
   }
 }
 
@@ -40,7 +36,7 @@ int _pickCell(List<TicTacToeCell> cells) {
 
 List<TicTacToeCell> _getCells(WidgetTester tester) {
   var cells = List<TicTacToeCell>(81);
-  var allWidgets = tester.widgetList(find.byType(TicTacToeCell)).toSet();
+  var allWidgets = tester.widgetList(find.byType(TicTacToeCell)).toList();
   expect(allWidgets.length, cells.length);
   for (TicTacToeCell cell in allWidgets) {
     var index = cell.gameY * 27 + cell.gameX * 3 + cell.cellY * 9 + cell.cellX;
@@ -49,13 +45,27 @@ List<TicTacToeCell> _getCells(WidgetTester tester) {
   return cells;
 }
 
+// List<TicTacToeGame> _getGames(WidgetTester tester) {
+//   var games = List<TicTacToeGame>(9);
+//   List<TicTacToeGame> allWidgets =
+//       tester.widgetList(find.byType(TicTacToeGame)).toList();
+//   expect(allWidgets.length, games.length);
+//   for (TicTacToeGame game in allWidgets) {
+//     var index = game.gameY * 3 + game.gameX;
+//     games[index] = game;
+//   }
+//   return games;
+// }
+
 void main() {
   testWidgets('Super Tic Tac Toe', (WidgetTester tester) async {
     await tester.pumpWidget(myApp());
-    await expectLater(find.byType(MaterialApp), matchesGoldenFile('main.png'));
+    await expectLater(
+        find.byType(MaterialApp), matchesGoldenFile('goldens/super/main.png'));
     await tester.tap(find.byType(SuperTicTacToeStartGameButton));
     await tester.pumpAndSettle();
-    await expectLater(find.byType(MaterialApp), matchesGoldenFile('super.png'));
+    await expectLater(find.byType(MaterialApp),
+        matchesGoldenFile('goldens/super/game_start.png'));
 
     for (;;) {
       var cells = _getCells(tester);
@@ -64,8 +74,8 @@ void main() {
       if (index == -1) break;
       await tester.tap(find.byWidget(cells[index]));
       await tester.pumpAndSettle();
-      await expectLater(
-          find.byType(MaterialApp), matchesGoldenFile('super$index.png'));
+      await expectLater(find.byType(MaterialApp),
+          matchesGoldenFile('goldens/super/game_turn_$index.png'));
     }
   });
 }

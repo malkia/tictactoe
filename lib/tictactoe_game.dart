@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 
 // Great article, and the first one that I remember learning about it
 // https://mathwithbaddrawings.com/2013/06/16/ultimate-tic-tac-toe/
@@ -105,6 +104,8 @@ class TicTacToeCell extends ElevatedButton {
 }
 
 class TicTacToeGame extends _TicTacToeBoard {
+  final int gameX;
+  final int gameY;
   final _boardCells = [
     for (var i = 0; i < 9; i++) _State.Empty,
   ];
@@ -117,7 +118,7 @@ class TicTacToeGame extends _TicTacToeBoard {
   get lastCellY => _lastCellY;
   get currentPlayer => _currentPlayer;
 
-  TicTacToeGame() {
+  TicTacToeGame(this.gameX, this.gameY) {
     _winner = checkForWinner();
   }
 
@@ -192,7 +193,10 @@ class TicTacToeGame extends _TicTacToeBoard {
 }
 
 class SuperTicTacToeGame extends _TicTacToeBoard {
-  final _boards = [for (var i = 0; i < 9; i++) TicTacToeGame()];
+  final _boards = [
+    for (var y = 0; y < 3; y++)
+      for (var x = 0; x < 3; x++) TicTacToeGame(x, y)
+  ];
   var _lastBoardX = -1;
   var _lastBoardY = -1;
   var _current = _State.X;

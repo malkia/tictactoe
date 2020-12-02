@@ -7,7 +7,7 @@ class TicTacToePage extends StatefulWidget {
 }
 
 class _TicTacToePageState extends State<TicTacToePage> {
-  final _state = TicTacToeGame();
+  final _state = TicTacToeGame(0, 0);
   @override
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: Text("Tic Tac Toe")),
