@@ -75,6 +75,35 @@ final _maximizedElevatedButtonStyle = ElevatedButton.styleFrom(
   shape: BeveledRectangleBorder(),
 );
 
+class TicTacToeCell extends ElevatedButton {
+  final int gameX;
+  final int gameY;
+  final int cellX;
+  final int cellY;
+  const TicTacToeCell(
+    this.gameX,
+    this.gameY,
+    this.cellX,
+    this.cellY, {
+    Key key,
+    @required VoidCallback onPressed,
+    VoidCallback onLongPress,
+    ButtonStyle style,
+    FocusNode focusNode,
+    bool autofocus = false,
+    Clip clipBehavior = Clip.none,
+    @required Widget child,
+  }) : super(
+            key: key,
+            onPressed: onPressed,
+            onLongPress: onLongPress,
+            style: style,
+            focusNode: focusNode,
+            autofocus: autofocus,
+            clipBehavior: clipBehavior,
+            child: child);
+}
+
 class TicTacToeGame extends _TicTacToeBoard {
   final _boardCells = [
     for (var i = 0; i < 9; i++) _State.Empty,
@@ -114,7 +143,7 @@ class TicTacToeGame extends _TicTacToeBoard {
     _lastCellY = y;
   }
 
-  Widget _renderCell(int col, int row,
+  Widget _renderCell(int gameX, int gameY, int col, int row,
       {Function(int, int) onPressed, bool disabled = false, size}) {
     final cell = cellAt(col, row);
     if (cell != _State.Empty) {
@@ -124,19 +153,20 @@ class TicTacToeGame extends _TicTacToeBoard {
     }
     return Padding(
       padding: EdgeInsets.all(size / 40),
-      child: Semantics(
-        tagForChildren: SemanticsTag("cell_$col$row"),
-        child: ElevatedButton(
-          style: _maximizedElevatedButtonStyle,
-          child: Text(_TicTacToeBoard._stateToString[cell],
-              textAlign: TextAlign.center, textScaleFactor: size / 30),
-          onPressed: disabled ? null : () => onPressed(col, row),
-        ),
+      child: TicTacToeCell(
+        gameX,
+        gameY,
+        col,
+        row,
+        style: _maximizedElevatedButtonStyle,
+        child: Text(_TicTacToeBoard._stateToString[cell],
+            textAlign: TextAlign.center, textScaleFactor: size / 30),
+        onPressed: disabled ? null : () => onPressed(col, row),
       ),
     );
   }
 
-  Widget renderBoard(BuildContext context,
+  Widget renderBoard(BuildContext context, int gameX, int gameY,
           {Function(int, int) onPressed, bool disabled = false, size}) =>
       Padding(
           padding: EdgeInsets.all(size / 20),
@@ -147,7 +177,7 @@ class TicTacToeGame extends _TicTacToeBoard {
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     for (var col = 0; col < 3; col++)
                       Expanded(
-                        child: _renderCell(col, row,
+                        child: _renderCell(gameX, gameY, col, row,
                             onPressed: onPressed,
                             disabled: disabled,
                             size: size),
@@ -209,7 +239,8 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
         enabled = (nextBoardX == boardX && nextBoardY == boardY);
       }
     }
-    return thisBoard.renderBoard(context, onPressed: (gameRow, gameCol) {
+    return thisBoard.renderBoard(context, boardX, boardY,
+        onPressed: (gameRow, gameCol) {
       onPressed(boardX, boardY, gameRow, gameCol);
     }, disabled: !enabled, size: size);
   }

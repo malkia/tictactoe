@@ -12,7 +12,7 @@ class _TicTacToePageState extends State<TicTacToePage> {
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: Text("Tic Tac Toe")),
       body: Center(
-          child: _state.renderBoard(context,
+          child: _state.renderBoard(context, 0, 0,
               onPressed: (int col, int row) => setState(
                     () => _state.move(col, row),
                   ))));

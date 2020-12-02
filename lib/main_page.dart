@@ -22,16 +22,7 @@ class MainPage extends StatelessWidget {
             //     )
             //   },
             // ),
-            ElevatedButton(
-              child: Text('Super\nTic Tac Toe',
-                  textScaleFactor: 3.0, textAlign: TextAlign.center),
-              onPressed: () => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SuperTicTacToePage()),
-                )
-              },
-            ),
+            SuperTicTacToeStartGameButton(),
             ElevatedButton(
               child: Text('Exit', textScaleFactor: 3.0),
               onPressed: () => exit(0),
@@ -39,4 +30,24 @@ class MainPage extends StatelessWidget {
           ],
         ),
       ));
+}
+
+class SuperTicTacToeStartGameButton extends StatelessWidget {
+  const SuperTicTacToeStartGameButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      child: Text('Super\nTic Tac Toe',
+          textScaleFactor: 3.0, textAlign: TextAlign.center),
+      onPressed: () => {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SuperTicTacToePage()),
+        )
+      },
+    );
+  }
 }
