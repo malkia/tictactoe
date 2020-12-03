@@ -21,7 +21,7 @@ class _TicTacToePageState extends State<TicTacToePage> {
 class SuperTicTacToePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: Text("Super Tic Tac Toe")),
+      appBar: AppBar(title: Text("SUPER TIC TAC TOE")),
       body: Center(child: SuperTicTacToeWidget()));
 }
 

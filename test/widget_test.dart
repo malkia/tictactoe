@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+
 import 'package:tictactoe/main.dart';
 import 'package:tictactoe/main_page.dart';
 import 'package:tictactoe/tictactoe_game.dart';
@@ -59,6 +62,11 @@ List<TicTacToeCell> _getCells(WidgetTester tester) {
 
 void main() {
   testWidgets('Super Tic Tac Toe', (WidgetTester tester) async {
+    final Future<ByteData> font =
+        rootBundle.load('../../assets/fonts/NovaMono/NovaMono-Regular.ttf');
+
+    await (FontLoader('Nova Mono')..addFont(font)).load();
+
     await tester.pumpWidget(myApp());
     await expectLater(
         find.byType(MaterialApp), matchesGoldenFile('goldens/super/main.png'));

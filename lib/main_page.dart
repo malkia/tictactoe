@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'tictactoe_page.dart';
@@ -7,7 +8,7 @@ import 'tictactoe_page.dart';
 class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: Text("Tic Tac Toes")),
+      appBar: AppBar(title: Text("TIC TAC TOES")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -23,10 +24,11 @@ class MainPage extends StatelessWidget {
             //   },
             // ),
             SuperTicTacToeStartGameButton(),
-            ElevatedButton(
-              child: Text('Exit', textScaleFactor: 3.0),
-              onPressed: () => exit(0),
-            ),
+            if (!kIsWeb)
+              ElevatedButton(
+                child: Text('EXIT', textScaleFactor: 3.0),
+                onPressed: () => exit(0),
+              ),
           ],
         ),
       ));
@@ -40,7 +42,7 @@ class SuperTicTacToeStartGameButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      child: Text('Super\nTic Tac Toe',
+      child: Text('S U P E R\nTIC TAC TOE',
           textScaleFactor: 3.0, textAlign: TextAlign.center),
       onPressed: () => {
         Navigator.push(

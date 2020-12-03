@@ -5,4 +5,7 @@ void main() {
   runApp(myApp());
 }
 
-MaterialApp myApp() => MaterialApp(home: MainPage());
+MaterialApp myApp() => MaterialApp(
+      home: MainPage(),
+      theme: ThemeData(fontFamily: "Nova Mono"),
+    );

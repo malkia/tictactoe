@@ -271,12 +271,15 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
                         textScaleFactor: desiredSize / 150),
                   ),
                 ),
-                ElevatedButton(
-                  child: Text('Undo',
-                      textAlign: TextAlign.center,
-                      textScaleFactor: desiredSize / 300),
-                  onPressed: onUndoPressed,
-                )
+                Padding(
+                  padding: EdgeInsets.all(desiredSize / 300),
+                  child: ElevatedButton(
+                    child: Text('Undo',
+                        textAlign: TextAlign.center,
+                        textScaleFactor: desiredSize / 300),
+                    onPressed: onUndoPressed,
+                  ),
+                ),
               ],
             ),
             Expanded(
