@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -62,10 +64,11 @@ List<TicTacToeCell> _getCells(WidgetTester tester) {
 
 void main() {
   testWidgets('Super Tic Tac Toe', (WidgetTester tester) async {
-    final Future<ByteData> font =
-        rootBundle.load('../../assets/fonts/NovaMono/NovaMono-Regular.ttf');
+    var font = ByteData.sublistView(
+        File('../assets/fonts/NovaMono/NovaMono-Regular.ttf')
+            .readAsBytesSync());
 
-    await (FontLoader('Nova Mono')..addFont(font)).load();
+    await (FontLoader('Nova Mono')..addFont(Future.value(font))).load();
 
     await tester.pumpWidget(myApp());
     await expectLater(
