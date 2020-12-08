@@ -59,14 +59,16 @@ List<TicTacToeCell> _getCells(WidgetTester tester) {
 // }
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  var binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('Super Tic Tac Toe', (WidgetTester tester) async {
     await tester.pumpWidget(myApp());
+//    await binding.takeScreenshot('scr_main');
 //    await expectLater(
 //        find.byType(MaterialApp), matchesGoldenFile('goldens/super/main.png'));
     await tester.tap(find.byType(SuperTicTacToeStartGameButton));
     await tester.pumpAndSettle();
+//    await binding.takeScreenshot('scr_start');
     // await expectLater(find.byType(MaterialApp),
     //     matchesGoldenFile('goldens/super/game_start.png'));
 
@@ -77,6 +79,7 @@ void main() {
       if (index == -1) break;
       await tester.tap(find.byWidget(cells[index]));
       await tester.pumpAndSettle();
+//      await binding.takeScreenshot('scr_turn_$index');
       // await expectLater(find.byType(MaterialApp),
       //     matchesGoldenFile('goldens/super/game_turn_$index.png'));
     }
