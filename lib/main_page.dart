@@ -11,6 +11,7 @@ class MainPage extends StatelessWidget {
       appBar: AppBar(title: Text("TIC TAC TOES")),
       body: Center(
         child: Column(
+          key: ValueKey("startButton"),
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -35,9 +36,8 @@ class MainPage extends StatelessWidget {
 }
 
 class SuperTicTacToeStartGameButton extends StatelessWidget {
-  const SuperTicTacToeStartGameButton({
-    Key key,
-  }) : super(key: key);
+  static final uniqueKey = ValueKey("undoButton");
+  SuperTicTacToeStartGameButton() : super(key: uniqueKey);
 
   @override
   Widget build(BuildContext context) {

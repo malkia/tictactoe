@@ -79,12 +79,11 @@ class TicTacToeCell extends ElevatedButton {
   final int gameY;
   final int cellX;
   final int cellY;
-  const TicTacToeCell(
+  TicTacToeCell(
     this.gameX,
     this.gameY,
     this.cellX,
     this.cellY, {
-    Key key,
     @required VoidCallback onPressed,
     VoidCallback onLongPress,
     ButtonStyle style,
@@ -93,7 +92,7 @@ class TicTacToeCell extends ElevatedButton {
     Clip clipBehavior = Clip.none,
     @required Widget child,
   }) : super(
-            key: key,
+            key: ValueKey("cell $gameX $gameY $cellX $cellY"),
             onPressed: onPressed,
             onLongPress: onLongPress,
             style: style,
@@ -275,6 +274,7 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
                   padding: EdgeInsets.all(desiredSize / 300),
                   child: ElevatedButton(
                     child: Text('Undo',
+                        key: ValueKey("undoButton"),
                         textAlign: TextAlign.center,
                         textScaleFactor: desiredSize / 300),
                     onPressed: onUndoPressed,
