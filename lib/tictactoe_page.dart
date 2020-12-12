@@ -38,7 +38,7 @@ class _SuperTicTacToeRecord {
 
 class _SuperTicTacToeWidgetState extends State<SuperTicTacToeWidget> {
   var _state = SuperTicTacToeGame();
-  final _record = List<_SuperTicTacToeRecord>();
+  final _record = <_SuperTicTacToeRecord>[];
   @override
   Widget build(BuildContext context) => _state.renderBoard(context,
       onPressed: (int gameX, int gameY, int cellX, int cellY) => setState(

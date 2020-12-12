@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+import 'keys.dart';
+
 // Great article, and the first one that I remember learning about it
 // https://mathwithbaddrawings.com/2013/06/16/ultimate-tic-tac-toe/
 
@@ -84,15 +86,15 @@ class TicTacToeCell extends ElevatedButton {
     this.gameY,
     this.cellX,
     this.cellY, {
-    @required VoidCallback onPressed,
-    VoidCallback onLongPress,
-    ButtonStyle style,
-    FocusNode focusNode,
+    VoidCallback? onPressed,
+    VoidCallback? onLongPress,
+    ButtonStyle? style,
+    FocusNode? focusNode,
     bool autofocus = false,
     Clip clipBehavior = Clip.none,
-    @required Widget child,
+    required Widget child,
   }) : super(
-            key: ValueKey("cell $gameX $gameY $cellX $cellY"),
+            key: Keys.CELLS[gameY * 27 + gameX * 3 + cellY * 9 + cellX],
             onPressed: onPressed,
             onLongPress: onLongPress,
             style: style,
@@ -144,7 +146,7 @@ class TicTacToeGame extends _TicTacToeBoard {
   }
 
   Widget _renderCell(int gameX, int gameY, int col, int row,
-      {Function(int, int) onPressed, bool disabled = false, size}) {
+      {required Function(int, int) onPressed, bool disabled = false, size}) {
     final cell = cellAt(col, row);
     if (cell != _State.Empty) {
       disabled = true;
@@ -159,7 +161,7 @@ class TicTacToeGame extends _TicTacToeBoard {
         col,
         row,
         style: _maximizedElevatedButtonStyle,
-        child: Text(_TicTacToeBoard._stateToString[cell],
+        child: Text(_TicTacToeBoard._stateToString[cell]!,
             textAlign: TextAlign.center, textScaleFactor: size / 30),
         onPressed: disabled ? null : () => onPressed(col, row),
       ),
@@ -167,7 +169,9 @@ class TicTacToeGame extends _TicTacToeBoard {
   }
 
   Widget renderBoard(BuildContext context, int gameX, int gameY,
-          {Function(int, int) onPressed, bool disabled = false, size}) =>
+          {required Function(int, int) onPressed,
+          bool disabled = false,
+          size}) =>
       Padding(
           padding: EdgeInsets.all(size / 20),
           child: Stack(alignment: AlignmentDirectional.center, children: [
@@ -186,7 +190,7 @@ class TicTacToeGame extends _TicTacToeBoard {
                 )
             ]),
             if (_winner != _State.Empty)
-              Text(_TicTacToeBoard._stateToString[_winner],
+              Text(_TicTacToeBoard._stateToString[_winner]!,
                   textScaleFactor: size / 10.0)
           ]));
 }
@@ -219,7 +223,7 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
   }
 
   Widget _renderBoard(BuildContext context, int boardX, int boardY,
-      {Function(int, int, int, int) onPressed,
+      {required Function(int, int, int, int) onPressed,
       bool disabled = false,
       size = 40}) {
     // Check if the current (this) board can be played, e.g.
@@ -249,7 +253,8 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
   }
 
   Widget renderBoard(BuildContext context,
-      {Function(int, int, int, int) onPressed, Function() onUndoPressed}) {
+      {required Function(int, int, int, int) onPressed,
+      Function()? onUndoPressed}) {
     final winner = checkForWinner();
     final disabled = winner != _State.Empty;
     return LayoutBuilder(
@@ -298,7 +303,7 @@ class SuperTicTacToeGame extends _TicTacToeBoard {
                     )
                 ]),
                 if (disabled)
-                  Text(_TicTacToeBoard._stateToString[winner],
+                  Text(_TicTacToeBoard._stateToString[winner]!,
                       style: const TextStyle(color: Colors.red),
                       textScaleFactor: desiredSize / 20)
               ]),
